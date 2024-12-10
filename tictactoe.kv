@@ -1,0 +1,42 @@
+<MainGrid>
+    cols: 1
+    Label:
+        text: 'Tic Tac Toe'
+        font_size: 50
+        size_hint_y: None
+        size_hint: (1, 0.2)
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: (1, 0.7)
+        GridLayout:
+            id: gameGrid
+            # this will also be done later
+            
+    GridLayout:
+        cols: 2
+        padding: 10
+        size_hint: (1, 0.1)
+        Button:
+            text: 'Reset'
+            font_size: 20
+            on_press: root.reset()
+        Button:
+            text: 'Settings'
+            font_size: 20
+            on_press: root.settings()
+
+<SettingsPopup>
+    title: 'Settings'
+    size_hint: (0.7, 0.7)
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Settings will later be here' # will be done later
+            font_size: 20
+        Button:
+            text: 'Close'
+            size_hint: (1, 0.1)
+            padding: 10
+            font_size: 20
+            on_press: root.dismiss()
