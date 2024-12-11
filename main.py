@@ -43,12 +43,14 @@ class MainGrid(GridLayout):
     def fill_grid(self):
         game_grid = self.ids.gameGrid
         game_grid.clear_widgets()
+        self.grid = []
         for i in range(self.grid_size):
+            self.grid.append([])
             for j in range(self.grid_size):
                 grid_button = GridButton()
                 grid_button.send_info(self, i, j)
                 game_grid.add_widget(grid_button)
-                self.grid.append(grid_button)
+                self.grid[i].append(grid_button)
         # its a bit weird to set the cols, and then return it as well, but it is necessary and it works
         game_grid.cols = self.grid_size
         return self.grid_size
@@ -58,47 +60,34 @@ class MainGrid(GridLayout):
             return
         #print('checking winner')
         buttons_to_check = []
-        number_of_buttons_next_to = 0
         # checking both horizontal options
+            # checking right
         for i in range(self.number_for_win):
-            column_to_check = button_clicked.col + i
-            row_to_check = button_clicked.row
-            if column_to_check > self.grid_size - 1:
-                row_to_check += 1
-                column_to_check = 0
-            #print(len(self.grid))
-            #print('checking', row_to_check * self.grid_size + column_to_check)
-            buttons_to_check.append(self.grid[row_to_check * self.grid_size + column_to_check-1])
-        #print('buttons to check:', buttons_to_check)
-        print("----------------------------------------------------------------------")
-        for button in buttons_to_check:
-            if button.text == button_clicked.text:
-                number_of_buttons_next_to += 1
-                print("The button at", button.row, button.col, "is next to the clicked button")
-        print('number of buttons next to:', number_of_buttons_next_to)
-        if number_of_buttons_next_to == self.number_for_win:
-            print('winner is', button_clicked.text)
-            print("the first horizontal decided this")
+            try:
+                buttons_to_check.append(self.grid[button_clicked.row][button_clicked.col + i])
+            except:
+                break
+        if self.check_buttons(buttons_to_check, button_clicked):
+            print('winner, this was decided by checking right')
+            # checking left
         buttons_to_check = []
-        number_of_buttons_next_to = 0
         for i in range(self.number_for_win):
-            column_to_check = button_clicked.col - i
-            row_to_check = button_clicked.row
-            if column_to_check < 0:
-                row_to_check -= 1
-                column_to_check = self.grid_size
-            buttons_to_check.append(self.grid[row_to_check * self.grid_size + column_to_check-1])
-        print("----------------------------------------------------------------------")
-        for button in buttons_to_check:
-            if button.text == button_clicked.text:
-                number_of_buttons_next_to += 1
-                print("The button at", button.row, button.col, "is next to the clicked button")
-        print('number of buttons next to:', number_of_buttons_next_to)
-        if number_of_buttons_next_to == self.number_for_win:
-            print('winner is', button_clicked.text)
-            print("the second horizontal decided this")
-                
+            try:
+                buttons_to_check.append(self.grid[button_clicked.row][button_clicked.col - i])
+            except:
+                break
+        if self.check_buttons(buttons_to_check, button_clicked):
+            print('winner, this was decided by checking left')
+
+
+
+
         
+    def check_buttons(self, buttons, original):
+        for button in buttons:
+            if button.text != original.text:
+                return False
+        return True
 # app class
 class TicTacToeApp(App):
     def build(self):
