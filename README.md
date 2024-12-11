@@ -10,7 +10,7 @@
 ## Screenshots
 ![image](https://github.com/user-attachments/assets/6018728b-2674-41b5-b221-49fd09ed4024)
 ![image](https://github.com/user-attachments/assets/43363aa6-0373-41df-a4c4-7cbef61d2cda)
-![image](https://github.com/user-attachments/assets/6cb70e6d-93ce-4dcf-836b-651f639bd35f)
+![image](https://github.com/user-attachments/assets/46afd279-0fae-4100-b096-eb92afeaa82e)
 
 ## To do
 [X] Layout of the app<br>
