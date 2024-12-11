@@ -11,8 +11,8 @@
 
 ## To do
 [X] Layout of the app<br>
-[X] Clickable buttons<br>
-[X] Winner conditions<br>
+[X] Clickable button grid<br>
+[X] Winner conditions checking<br>
 [] AI opponent<br>
 
 <h1>Download instructions</h1>
