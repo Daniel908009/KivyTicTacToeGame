@@ -59,35 +59,29 @@ class MainGrid(GridLayout):
         if button_clicked.text == 'O':
             return
         #print('checking winner')
-        buttons_to_check = []
+        buttons_of_player = 0
         # checking both horizontal options
-            # checking right
-        for i in range(self.number_for_win):
+        checked = 0
+        while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                buttons_to_check.append(self.grid[button_clicked.row][button_clicked.col + i])
+                if self.grid[button_clicked.row][button_clicked.col + checked].text == button_clicked.text:
+                    buttons_of_player += 1
             except:
                 break
-        if self.check_buttons(buttons_to_check, button_clicked):
-            print('winner, this was decided by checking right')
-            # checking left
-        buttons_to_check = []
-        for i in range(self.number_for_win):
+            checked += 1
+        checked = 0
+        while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                buttons_to_check.append(self.grid[button_clicked.row][button_clicked.col - i])
+                if self.grid[button_clicked.row][button_clicked.col - checked].text == button_clicked.text:
+                    buttons_of_player += 1
             except:
                 break
-        if self.check_buttons(buttons_to_check, button_clicked):
-            print('winner, this was decided by checking left')
+            checked += 1
+        print('horizontal', buttons_of_player)
+        if buttons_of_player >= self.win_count + 1: # the plus one is there because the button that was clicked last is counted twice
+            print('winner')
 
 
-
-
-        
-    def check_buttons(self, buttons, original):
-        for button in buttons:
-            if button.text != original.text:
-                return False
-        return True
 # app class
 class TicTacToeApp(App):
     def build(self):
