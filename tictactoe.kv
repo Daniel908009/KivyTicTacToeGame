@@ -1,7 +1,12 @@
 # this is the main app grid
 <MainGrid>
+    current_player: 'X'
     cols: 1
-    grid_size: 3
+    grid_size: 5
+    grid: []
+    ai_player: 'Player'
+    ai_difficulty: 'Easy'
+    number_for_win: 3
     Label:
         text: 'Tic Tac Toe'
         font_size: 50
@@ -82,3 +87,10 @@
                 text: 'Apply'
                 font_size: 20
                 on_press: root.apply_settings()
+
+<GridButton>
+    caller: None
+    row: 0
+    col: 0
+    font_size: 50
+    on_press: root.click()
