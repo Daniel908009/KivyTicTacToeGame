@@ -5,6 +5,53 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 import random
 
+# function to get the depth of a list
+def depth(l):
+    if type(l) == list:
+        return 1 + max(depth(item) for item in l)
+    else:
+        return 0
+
+#test_list = [[1,[1, [2, [0,0]]]], [1, [1, [2, [0,0]]]]]
+#print(depth(test_list))
+#print(depth(test_list[0]))
+# displaying all the levels of the list
+#something = test_list
+#for i in range(depth(test_list)):
+#    print(i)
+#    something = something[1]
+#    if i == depth(test_list) - 2:
+#        print(something)
+
+#class information_block:
+#    def __init__(self):
+#        self.result = 0
+#        self.coords = [-1,-1]
+#        self.children = []
+
+#list_of_things = [information_block()]
+#list_of_things[0].children.append(information_block())
+#list_of_things = []
+
+#print(list_of_things[0].children[0].result)
+#for i in range(3):
+#    something = information_block()
+#    for j in range(3):
+#        something.children.append(information_block())
+#    list_of_things.append(something)
+#print(list_of_things[0].children[0].result)
+
+list_of_possibilities = []
+test_object = {'results': [], 'coords': []}
+list_of_possibilities.append({'results': [], 'coords': []})
+list_of_possibilities[0]['results'].append(1)
+list_of_possibilities[0]['results'].append(1)
+list_of_possibilities[0]['results'].append(1)
+list_of_possibilities[0]['coords'].append((1,1))
+list_of_possibilities[0]['coords'].append((1,1))
+list_of_possibilities[0]['coords'].append((1,1))
+print(list_of_possibilities[0]['coords'])
+
 # this is the popup class for settings
 class SettingsPopup(Popup):
     def send_info(self, caller):
@@ -20,7 +67,6 @@ class SettingsPopup(Popup):
             self.caller.win_count = int(self.ids.winCount.text)
             self.caller.ai_player = self.ids.aiPlayer.text
             self.caller.ai_difficulty = self.ids.aiDifficulty.text
-            print(self.caller.ai_player, self.caller.ai_difficulty)
             self.dismiss()
 
 # this is the grid button class used in the main grid
@@ -269,5 +315,5 @@ class TicTacToeApp(App):
         return MainGrid()
 
 # running the app
-if __name__ == '__main__':
-    TicTacToeApp().run()
+#if __name__ == '__main__':
+#    TicTacToeApp().run()
