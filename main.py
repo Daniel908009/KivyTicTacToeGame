@@ -63,7 +63,9 @@ class GridButton(Button):
         # if there is a winning move, return it
         for move in moves:
             if self.check_if_winner(move):
-                print('winning move')
+                for i in range(self.caller.grid_size):
+                    print(len(self.caller.grid[i]))
+                    print(self.caller.grid[i][0].text, self.caller.grid[i][1].text, self.caller.grid[i][2].text, self.caller.grid[i][3].text, self.caller.grid[i][4].text)
                 return move
         if self.caller.ai_difficulty == 'Normal':
             return moves[random.randint(0, len(moves)-1)]
@@ -80,44 +82,90 @@ class GridButton(Button):
         # checking both horizontal options
         checked = 0
         buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[1] + checked < self.caller.grid_size:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
             try:
-                if copy_grid[move[0]][move[1] + checked] == 'O':
+                if copy_grid[move[0]][move[1] + checked] == 'O' and move[1] + checked < self.caller.grid_size:
                     buttons_of_player += 1
             except:
                 break
             checked += 1
         checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[1] - checked >= 0:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
             try:
-                if copy_grid[move[0]][move[1] - checked] == 'O':
+                if copy_grid[move[0]][move[1] - checked] == 'O'and move[1] - checked >= 0:
                     buttons_of_player += 1
             except:
                 break
             checked += 1
         if buttons_of_player >= self.caller.win_count + 1:
             checked = 0
+            print("horizontal decided this")
             return True
         # checking both vertical options
         checked = 0
         buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] + checked < self.caller.grid_size:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
             try:
-                if copy_grid[move[0] + checked][move[1]] == 'O':
+                if copy_grid[move[0] + checked][move[1]] == 'O'and move[0] + checked < self.caller.grid_size:
                     buttons_of_player += 1
             except:
                 break
             checked += 1
         checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] - checked >= 0:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
             try:
-                if copy_grid[move[0] - checked][move[1]] == 'O':
+                if copy_grid[move[0] - checked][move[1]] == 'O'and move[0] - checked >= 0:
                     buttons_of_player += 1
             except:
                 break
             checked += 1
         if buttons_of_player >= self.caller.win_count + 1:
             checked = 0
+            print("vertical decided this")
+            return True
+        # checking the first pair of diagonal options
+        checked = 0
+        buttons_of_player = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] + checked < self.caller.grid_size :
+            try:
+                if copy_grid[move[0] + checked][move[1] + checked] == 'O'and move[1] + checked < self.caller.grid_size:
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        checked = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] - checked >= 0 :
+            try:
+                if copy_grid[move[0] - checked][move[1] - checked] == 'O'and move[1] - checked >= 0:
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        if buttons_of_player >= self.caller.win_count + 1:
+            checked = 0
+            print("first diagonal decided this")
+            return True
+        # checking the second pair of diagonal options
+        checked = 0
+        buttons_of_player = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
+            try:
+                if copy_grid[move[0] - checked][move[1] + checked] == 'O' and move[1] + checked < self.caller.grid_size:
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        checked = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
+            try:
+                if copy_grid[move[0] + checked][move[1] - checked] == 'O'and move[1] - checked >= 0:
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        if buttons_of_player >= self.caller.win_count + 1:
+            checked = 0
+            print("second diagonal decided this")
             return True
         return False
 
