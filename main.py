@@ -32,48 +32,44 @@ class GridButton(Button):
     def click(self):
         if self.text == '':
             self.text = self.caller.current_player
+            print('clicked on ' + str(self.row) + ' ' + str(self.col), 'player: ' + self.text)
             self.caller.current_player = 'X' if self.caller.current_player == 'O' else 'O'
             self.caller.check_winner(self)
             if self.caller.ai_player == 'AI' and self.text == 'X' and not self.caller.game_over:
                 self.ai_move()
     def ai_move(self):
-        # getting the dificulty, this is used to get the depth of the minimax algorithm
-        if self.caller.ai_difficulty == 'Easy':
-            depth = 2
-        elif self.caller.ai_difficulty == 'Medium':
-            depth = 4
-        elif self.caller.ai_difficulty == 'Hard':
-            depth = 6
         # getting the best move
-        best_move = self.ai_choice(depth)
+        best_move = self.ai_choice()
         print(str(best_move) + ' is the best move')
         # making the move
         self.caller.grid[best_move[0]][best_move[1]].click()
-    def ai_choice(self, depth):
-        index_depth = 0
-        #moves = []
-        moves = [(0,0),(0,1), (0,4), (0,2), (0,3)]
-        moves_to_remove = []
+    def ai_choice(self):
+        moves = []
+        #moves = [(0,0),(0,1), (0,4), (0,2), (0,3)]
+        #moves_to_remove = []
         #for move in moves:
         #    print(move)
-        for move in moves:
-            if self.caller.grid[move[0]][move[1]].text == 'O':
-                moves_to_remove.append(move)
-        for move in moves_to_remove:
-            moves.remove(move)
-        print(moves)
+        #for move in moves:
+        #    if self.caller.grid[move[0]][move[1]].text == 'O':
+        #        moves_to_remove.append(move)
+        #for move in moves_to_remove:
+        #    moves.remove(move)
+        #print(moves)
         # getting all the possible moves
-        #for i in range(self.caller.grid_size):
-        #    for j in range(self.caller.grid_size):
-        #        if self.caller.grid[i][j].text == '':
-        #            moves.append([i, j])
+        for i in range(self.caller.grid_size):
+            for j in range(self.caller.grid_size):
+                if self.caller.grid[i][j].text == '':
+                    moves.append([i, j])
         # if there is a winning move, return it
         for move in moves:
             if self.check_if_winner(move):
                 print('winning move')
                 return move
-        return moves[random.randint(0, len(moves)-1)]
-        
+        if self.caller.ai_difficulty == 'Normal':
+            return moves[random.randint(0, len(moves)-1)]
+        elif self.caller.ai_difficulty == 'Hard':
+            pass
+
     def check_if_winner(self, move):
         copy_grid = []
         for i in range(self.caller.grid_size):
@@ -84,7 +80,7 @@ class GridButton(Button):
         # checking both horizontal options
         checked = 0
         buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[1] + checked < self.caller.grid_size:
             try:
                 if copy_grid[move[0]][move[1] + checked] == 'O':
                     buttons_of_player += 1
@@ -92,7 +88,7 @@ class GridButton(Button):
                 break
             checked += 1
         checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[1] - checked >= 0:
             try:
                 if copy_grid[move[0]][move[1] - checked] == 'O':
                     buttons_of_player += 1
@@ -103,6 +99,26 @@ class GridButton(Button):
             checked = 0
             return True
         # checking both vertical options
+        checked = 0
+        buttons_of_player = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] + checked < self.caller.grid_size:
+            try:
+                if copy_grid[move[0] + checked][move[1]] == 'O':
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        checked = 0
+        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] - checked >= 0:
+            try:
+                if copy_grid[move[0] - checked][move[1]] == 'O':
+                    buttons_of_player += 1
+            except:
+                break
+            checked += 1
+        if buttons_of_player >= self.caller.win_count + 1:
+            checked = 0
+            return True
         return False
 
 # this is the main grid class of the app
@@ -138,7 +154,7 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row][button_clicked.col + checked].text == button_clicked.text:
+                if self.grid[button_clicked.row][button_clicked.col + checked].text == button_clicked.text and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row][button_clicked.col + checked])
             except:
@@ -147,7 +163,7 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row][button_clicked.col - checked].text == button_clicked.text:
+                if self.grid[button_clicked.row][button_clicked.col - checked].text == button_clicked.text and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row][button_clicked.col - checked])
             except:
@@ -156,13 +172,12 @@ class MainGrid(GridLayout):
         if buttons_of_player >= self.win_count + 1: # the plus one is there because the button that was clicked last is counted twice
             self.winner(button_clicked.text, winner_buttons)
         # checking both vertical options
-        '''
         buttons_of_player = 0
         checked = 0
         winner_buttons = []
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col].text == button_clicked.text:
+                if self.grid[button_clicked.row + checked][button_clicked.col].text == button_clicked.text and button_clicked.row + checked < self.grid_size:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col])
             except:
@@ -171,7 +186,7 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col].text == button_clicked.text:
+                if self.grid[button_clicked.row - checked][button_clicked.col].text == button_clicked.text and button_clicked.row - checked >= 0:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col])
             except:
@@ -185,7 +200,7 @@ class MainGrid(GridLayout):
         winner_buttons = []
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col + checked].text == button_clicked.text:
+                if self.grid[button_clicked.row + checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col + checked])
             except:
@@ -194,7 +209,7 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col - checked].text == button_clicked.text:
+                if self.grid[button_clicked.row - checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col - checked])
             except:
@@ -207,7 +222,7 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col + checked].text == button_clicked.text:
+                if self.grid[button_clicked.row - checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col + checked])
             except:
@@ -216,12 +231,12 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col - checked].text == button_clicked.text:
+                if self.grid[button_clicked.row + checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col - checked])
             except:
                 break
-            checked += 1'''
+            checked += 1
         if buttons_of_player >= self.win_count + 1:
             self.winner(button_clicked.text, winner_buttons)
     def winner(self, winner, winner_buttons): 
