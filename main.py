@@ -32,142 +32,21 @@ class GridButton(Button):
     def click(self):
         if self.text == '':
             self.text = self.caller.current_player
-            print('clicked on ' + str(self.row) + ' ' + str(self.col), 'player: ' + self.text)
             self.caller.current_player = 'X' if self.caller.current_player == 'O' else 'O'
-            self.caller.check_winner(self)
+            self.caller.check_winner(self, self.caller.grid)
             if self.caller.ai_player == 'AI' and self.text == 'X' and not self.caller.game_over:
                 self.ai_move()
     def ai_move(self):
         # getting the best move
         best_move = self.ai_choice()
-        print(str(best_move) + ' is the best move')
+        print(str(best_move) + ' is the chosen move')
         # making the move
         self.caller.grid[best_move[0]][best_move[1]].click()
     def ai_choice(self):
-        moves = []
-        #moves = [(0,0),(0,1), (0,4), (0,2), (0,3)]
-        #moves_to_remove = []
-        #for move in moves:
-        #    print(move)
-        #for move in moves:
-        #    if self.caller.grid[move[0]][move[1]].text == 'O':
-        #        moves_to_remove.append(move)
-        #for move in moves_to_remove:
-        #    moves.remove(move)
-        #print(moves)
-        # getting all the possible moves
-        for i in range(self.caller.grid_size):
-            for j in range(self.caller.grid_size):
-                if self.caller.grid[i][j].text == '':
-                    moves.append([i, j])
-        # if there is a winning move, return it
-        for move in moves:
-            if self.check_if_winner(move):
-                for i in range(self.caller.grid_size):
-                    print(len(self.caller.grid[i]))
-                    print(self.caller.grid[i][0].text, self.caller.grid[i][1].text, self.caller.grid[i][2].text, self.caller.grid[i][3].text, self.caller.grid[i][4].text)
-                return move
-        if self.caller.ai_difficulty == 'Normal':
-            return moves[random.randint(0, len(moves)-1)]
-        elif self.caller.ai_difficulty == 'Hard':
-            pass
-
-    def check_if_winner(self, move):
-        copy_grid = []
-        for i in range(self.caller.grid_size):
-            copy_grid.append([])
-            for j in range(self.caller.grid_size):
-                copy_grid[i].append(self.caller.grid[i][j].text)
-        copy_grid[move[0]][move[1]] = 'O'
-        # checking both horizontal options
-        checked = 0
-        buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
-            try:
-                if copy_grid[move[0]][move[1] + checked] == 'O' and move[1] + checked < self.caller.grid_size:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
-            try:
-                if copy_grid[move[0]][move[1] - checked] == 'O'and move[1] - checked >= 0:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        if buttons_of_player >= self.caller.win_count + 1:
-            checked = 0
-            print("horizontal decided this")
-            return True
-        # checking both vertical options
-        checked = 0
-        buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
-            try:
-                if copy_grid[move[0] + checked][move[1]] == 'O'and move[0] + checked < self.caller.grid_size:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
-            try:
-                if copy_grid[move[0] - checked][move[1]] == 'O'and move[0] - checked >= 0:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        if buttons_of_player >= self.caller.win_count + 1:
-            checked = 0
-            print("vertical decided this")
-            return True
-        # checking the first pair of diagonal options
-        checked = 0
-        buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] + checked < self.caller.grid_size :
-            try:
-                if copy_grid[move[0] + checked][move[1] + checked] == 'O'and move[1] + checked < self.caller.grid_size:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count and move[0] - checked >= 0 :
-            try:
-                if copy_grid[move[0] - checked][move[1] - checked] == 'O'and move[1] - checked >= 0:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        if buttons_of_player >= self.caller.win_count + 1:
-            checked = 0
-            print("first diagonal decided this")
-            return True
-        # checking the second pair of diagonal options
-        checked = 0
-        buttons_of_player = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count :
-            try:
-                if copy_grid[move[0] - checked][move[1] + checked] == 'O' and move[1] + checked < self.caller.grid_size:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        checked = 0
-        while buttons_of_player < self.caller.win_count+1 and checked < self.caller.win_count:
-            try:
-                if copy_grid[move[0] + checked][move[1] - checked] == 'O'and move[1] - checked >= 0:
-                    buttons_of_player += 1
-            except:
-                break
-            checked += 1
-        if buttons_of_player >= self.caller.win_count + 1:
-            checked = 0
-            print("second diagonal decided this")
-            return True
-        return False
+        moves = [(0,0), (0,1), (0,2), (0,3), (0,4)]
+        chosen = random.choice(moves)
+        #self.caller.check_winner(self.caller.grid[chosen[0]][chosen[1]], self.caller.grid)
+        return chosen
 
 # this is the main grid class of the app
 class MainGrid(GridLayout):
@@ -195,29 +74,34 @@ class MainGrid(GridLayout):
         # its a bit weird to set the cols, and then return it as well, but it is necessary and it works
         game_grid.cols = self.grid_size
         return self.grid_size
-    def check_winner(self, button_clicked):
+    def check_winner(self, button_clicked, grid):
         buttons_of_player = 0
         winner_buttons = []
         # checking both horizontal options
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row][button_clicked.col + checked].text == button_clicked.text and button_clicked.col + checked < self.grid_size:
+                if grid[button_clicked.row][button_clicked.col + checked].text == button_clicked.text and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row][button_clicked.col + checked])
+                    winner_buttons.append(grid[button_clicked.row][button_clicked.col + checked])
+                else:
+                    break
             except:
                 break
             checked += 1
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row][button_clicked.col - checked].text == button_clicked.text and button_clicked.col - checked >= 0:
+                if grid[button_clicked.row][button_clicked.col - checked].text == button_clicked.text and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row][button_clicked.col - checked])
+                    winner_buttons.append(grid[button_clicked.row][button_clicked.col - checked])
+                else:
+                    break
             except:
                 break
             checked += 1
         if buttons_of_player >= self.win_count + 1: # the plus one is there because the button that was clicked last is counted twice
+            print(winner_buttons)
             self.winner(button_clicked.text, winner_buttons)
         # checking both vertical options
         buttons_of_player = 0
@@ -225,18 +109,22 @@ class MainGrid(GridLayout):
         winner_buttons = []
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col].text == button_clicked.text and button_clicked.row + checked < self.grid_size:
+                if grid[button_clicked.row + checked][button_clicked.col].text == button_clicked.text and button_clicked.row + checked < self.grid_size:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col])
+                    winner_buttons.append(grid[button_clicked.row + checked][button_clicked.col])
+                else:
+                    break
             except:
                 break
             checked += 1
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col].text == button_clicked.text and button_clicked.row - checked >= 0:
+                if grid[button_clicked.row - checked][button_clicked.col].text == button_clicked.text and button_clicked.row - checked >= 0:
                     buttons_of_player += 1
                     winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col])
+                else:
+                    break
             except:
                 break
             checked += 1
@@ -248,18 +136,22 @@ class MainGrid(GridLayout):
         winner_buttons = []
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col + checked < self.grid_size:
+                if grid[button_clicked.row + checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col + checked])
+                    winner_buttons.append(grid[button_clicked.row + checked][button_clicked.col + checked])
+                else:
+                    break
             except:
                 break
             checked += 1
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col - checked >= 0:
+                if grid[button_clicked.row - checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col - checked])
+                    winner_buttons.append(grid[button_clicked.row - checked][button_clicked.col - checked])
+                else:
+                    break
             except:
                 break
             checked += 1
@@ -270,18 +162,22 @@ class MainGrid(GridLayout):
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row - checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col + checked < self.grid_size:
+                if grid[button_clicked.row - checked][button_clicked.col + checked].text == button_clicked.text and button_clicked.row - checked >= 0 and button_clicked.col + checked < self.grid_size:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row - checked][button_clicked.col + checked])
+                    winner_buttons.append(grid[button_clicked.row - checked][button_clicked.col + checked])
+                else:
+                    break
             except:
                 break
             checked += 1
         checked = 0
         while buttons_of_player < self.win_count+1 and checked < self.win_count:
             try:
-                if self.grid[button_clicked.row + checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col - checked >= 0:
+                if grid[button_clicked.row + checked][button_clicked.col - checked].text == button_clicked.text and button_clicked.row + checked < self.grid_size and button_clicked.col - checked >= 0:
                     buttons_of_player += 1
-                    winner_buttons.append(self.grid[button_clicked.row + checked][button_clicked.col - checked])
+                    winner_buttons.append(grid[button_clicked.row + checked][button_clicked.col - checked])
+                else:
+                    break
             except:
                 break
             checked += 1
