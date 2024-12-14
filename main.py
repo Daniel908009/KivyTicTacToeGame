@@ -12,45 +12,7 @@ def depth(l):
     else:
         return 0
 
-#test_list = [[1,[1, [2, [0,0]]]], [1, [1, [2, [0,0]]]]]
-#print(depth(test_list))
-#print(depth(test_list[0]))
-# displaying all the levels of the list
-#something = test_list
-#for i in range(depth(test_list)):
-#    print(i)
-#    something = something[1]
-#    if i == depth(test_list) - 2:
-#        print(something)
-
-#class information_block:
-#    def __init__(self):
-#        self.result = 0
-#        self.coords = [-1,-1]
-#        self.children = []
-
-#list_of_things = [information_block()]
-#list_of_things[0].children.append(information_block())
-#list_of_things = []
-
-#print(list_of_things[0].children[0].result)
-#for i in range(3):
-#    something = information_block()
-#    for j in range(3):
-#        something.children.append(information_block())
-#    list_of_things.append(something)
-#print(list_of_things[0].children[0].result)
-
-list_of_possibilities = []
-test_object = {'results': [], 'coords': []}
-list_of_possibilities.append({'results': [], 'coords': []})
-list_of_possibilities[0]['results'].append(1)
-list_of_possibilities[0]['results'].append(1)
-list_of_possibilities[0]['results'].append(1)
-list_of_possibilities[0]['coords'].append((1,1))
-list_of_possibilities[0]['coords'].append((1,1))
-list_of_possibilities[0]['coords'].append((1,1))
-print(list_of_possibilities[0]['coords'])
+#test_object = {'results': [], 'coords': []}
 
 # this is the popup class for settings
 class SettingsPopup(Popup):
@@ -79,7 +41,8 @@ class GridButton(Button):
         if self.text == '':
             self.text = self.caller.current_player
             self.caller.current_player = 'X' if self.caller.current_player == 'O' else 'O'
-            self.caller.check_winner(self, self.caller.grid, self.text)
+            self.caller.check_winner(self, self.caller.grid, self.text, True)
+            #print(self.caller.ai_player)
             if self.caller.ai_player == 'AI' and self.text == 'X' and not self.caller.game_over:
                 self.ai_move()
     def ai_move(self):
@@ -109,7 +72,7 @@ class GridButton(Button):
         # checking if the ai can win in one move
         for move in moves:
             grid_copy[move[0]][move[1]] = 'O'
-            if self.caller.check_winner([move[0],move[1]], grid_copy, 'O'):
+            if self.caller.check_winner([move[0],move[1]], grid_copy, 'O', False):
                 chosen = [move, 1]
                 print('winning move at ' + str(chosen))
                 break
@@ -118,15 +81,61 @@ class GridButton(Button):
         if chosen[1] == 0:
             for move in moves:
                 grid_copy[move[0]][move[1]] = 'X'
-                if self.caller.check_winner([move[0],move[1]], grid_copy, 'X'):
+                if self.caller.check_winner([move[0],move[1]], grid_copy, 'X', False):
                     chosen = [move, 1]
                     print('blocking move at ' + str(chosen))
                     break
                 grid_copy[move[0]][move[1]] = ''
 
-        # here will later be the algorithm to choose the best move
+        # calling the algorithm to choose the best move, this will take like a thousand years to finish
+        #if chosen[1] == 0:
+        #    chosen[0] = self.algorithm(grid_copy)
+        #    print('chosen move at ' + str(chosen))
         
         return chosen[0]
+    
+    def algorithm(self, grid):
+        move = [0,0]
+        base_empty_tiles = []
+        # getting all the empty tiles
+        for i in range(self.caller.grid_size):
+            for j in range(self.caller.grid_size):
+                if grid[i][j] == '':
+                    base_empty_tiles.append((i,j))
+        all_possibilities = []
+        for possibility in base_empty_tiles:
+            all_possibilities.append({'player': "O", 'result': 0, 'tile_coord': [possibility], 'children': [], 'grid': base_empty_tiles})
+        for possibility in all_possibilities:
+            child = self.recursion(possibility['tile_coord'], grid, possibility['player'], all_possibilities)
+            all_possibilities[all_possibilities.index(possibility)]["children"].append(child)
+        print(all_possibilities[0])
+        return move
+
+    def recursion(self, free, grid, player, all_possibilities):
+        #print("recursion happening")
+        tiles = []
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                    tiles.append((i,j))
+        if len(tiles) > 1:
+            for tile in tiles:
+                info_block = {'player': "", 'result': 0, 'tile_coord': [], 'children': [], 'grid': None}
+                info_block['player'] = player
+                info_block['tile_coord'] = tile
+                grid.remove(tile)
+                info_block['grid'] = grid
+                info_block['grid'][tile[0]][tile[1]] = player
+                #print("tile added")
+                for tile in tiles:
+                    info_block['children'].append(self.recursion(tile, grid, "X" if player == "O" else "O", all_possibilities))
+                    print("child added")
+                #for child in info_block['children']:
+                #    info_block['result'] += child['result']
+                return info_block
+        else:
+            pass
+            #print("recursion end")
+
 
 # this is the main grid class of the app
 class MainGrid(GridLayout):
@@ -154,7 +163,7 @@ class MainGrid(GridLayout):
         # its a bit weird to set the cols, and then return it as well, but it is necessary and it works
         game_grid.cols = self.grid_size
         return self.grid_size
-    def check_winner(self, button_clicked, grid, text_of_clicked):
+    def check_winner(self, button_clicked, grid, text_of_clicked, is_real):
         buttons_of_player = 0
         winner_buttons = []
         called_by_ai = False
@@ -189,7 +198,7 @@ class MainGrid(GridLayout):
             except:
                 break
             checked += 1
-        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O': # the plus one is there because the button that was clicked last is counted twice
+        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real: # the plus one is there because the button that was clicked last is counted twice
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
             print("horizontal")
@@ -225,7 +234,7 @@ class MainGrid(GridLayout):
             except:
                 break
             checked += 1
-        if buttons_of_player >= self.win_count + 1 and self.current_player != text_of_clicked:
+        if buttons_of_player >= self.win_count + 1 and self.current_player != text_of_clicked and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
             print("vertical")
@@ -261,7 +270,7 @@ class MainGrid(GridLayout):
             except:
                 break
             checked += 1
-        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O':
+        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
             print("first diagonal")
@@ -296,11 +305,17 @@ class MainGrid(GridLayout):
             except:
                 break
             checked += 1
-        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O':
+        if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
             print("second diagonal")
             return True
+        elif self.no_empty_tiles():
+            self.ids.currentPlayer.text = 'No winner'
+            self.game_over = True
+            for button in self.ids.gameGrid.children:
+                button.disabled = True
+                
     def winner(self, winner, winner_buttons): 
         self.ids.currentPlayer.text = 'Winner is: ' + winner
         self.game_over = True
@@ -309,11 +324,17 @@ class MainGrid(GridLayout):
         for button in winner_buttons:
             button.background_color = (0, 1, 0, 1)
 
+    def no_empty_tiles(self):
+        for button in self.ids.gameGrid.children:
+            if button.text == '':
+                return False
+        return True
+
 # app class
 class TicTacToeApp(App):
     def build(self):
         return MainGrid()
 
 # running the app
-#if __name__ == '__main__':
-#    TicTacToeApp().run()
+if __name__ == '__main__':
+    TicTacToeApp().run()
