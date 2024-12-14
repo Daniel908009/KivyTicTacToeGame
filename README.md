@@ -20,7 +20,7 @@
 
 ## AI explanation
 <p>Currently the AI recognizes if player can win and blocks him, and it recognizes if it can win in one move. However it cant think more than one move ahead.</p>
-<p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet.</p>
+<p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet, since this is the first time I am doing recursive functions.</p>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
