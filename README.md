@@ -1,11 +1,11 @@
 # kivy_tic_tac_toe
 ## What is it?
-<p>This project is a simple Tic Tac Toe game build in Kivy(multiplatform, naturaly resizable framework)</p>
+<p>This project is a Tic Tac Toe game build in Kivy(multiplatform, naturaly resizable framework), with computer enemy.</p>
 
 ## Features
 <p>Fully customizable grid.</p>
 <p>Settings window(custom size of the grid, custom number of tiles in line needed for winning).</p>
-<p>Play mode against AI. (coming soon)</p>
+<p>Play mode against AI. (currently not very smart, but it works)</p>
 
 ## Screenshots
 ![image](https://github.com/user-attachments/assets/6018728b-2674-41b5-b221-49fd09ed4024)
@@ -16,7 +16,11 @@
 [X] Layout of the app<br>
 [X] Clickable button grid<br>
 [X] Winner conditions checking<br>
-[] AI opponent<br>
+[] AI opponent(Halfway done)<br>
+
+## AI explanation
+<p>Currently the AI recognizes if player can win and blocks him, and it recognizes if it can win in one move. However it cant think more than one move ahead.</p>
+<p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet.</p>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
