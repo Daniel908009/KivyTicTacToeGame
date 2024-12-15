@@ -91,6 +91,8 @@ class GridButton(Button):
         #if chosen[1] == 0:
         #    chosen[0] = self.algorithm(grid_copy)
         #    print('chosen move at ' + str(chosen))
+        copy = self.caller.grid.copy()
+        copy[0][0].text = 'O'
         
         return chosen[0]
     
@@ -106,36 +108,54 @@ class GridButton(Button):
         for possibility in base_empty_tiles:
             all_possibilities.append({'player': "O", 'result': 0, 'tile_coord': [possibility], 'children': [], 'grid': base_empty_tiles})
         for possibility in all_possibilities:
-            child = self.recursion(possibility['tile_coord'], grid, possibility['player'], all_possibilities)
+            child = self.recursion(base_empty_tiles, "O", self.caller.grid.copy())
             all_possibilities[all_possibilities.index(possibility)]["children"].append(child)
-        print(all_possibilities[0])
+        #print(str(all_possibilities[0]) + ' is the first possibility')
         return move
 
-    def recursion(self, free, grid, player, all_possibilities):
-        #print("recursion happening")
-        tiles = []
-        for i in range(len(grid)):
-            for j in range(len(grid[i])):
-                    tiles.append((i,j))
-        if len(tiles) > 1:
-            for tile in tiles:
-                info_block = {'player': "", 'result': 0, 'tile_coord': [], 'children': [], 'grid': None}
-                info_block['player'] = player
-                info_block['tile_coord'] = tile
-                grid.remove(tile)
-                info_block['grid'] = grid
-                info_block['grid'][tile[0]][tile[1]] = player
-                #print("tile added")
-                for tile in tiles:
-                    info_block['children'].append(self.recursion(tile, grid, "X" if player == "O" else "O", all_possibilities))
-                    print("child added")
-                #for child in info_block['children']:
-                #    info_block['result'] += child['result']
-                return info_block
+    def recursion(self,grid, player, complete_grid):
+        empty_tiles = grid
+        #print(len(empty_tiles))
+        #print(empty_tiles)
+        if len(empty_tiles) > 1:
+            next_player = "X" if player == "O" else "O"
+            possibilities = []
+            new_grid = empty_tiles.copy()
+            move = empty_tiles[0]
+            #print(move)
+            #print(player)
+            #print(self.caller.check_winner([move[0],move[1]], complete_grid, player, False))
+            text_grid = []
+            for i in range(self.caller.grid_size):
+                text_grid.append([])
+                for j in range(self.caller.grid_size):
+                    text_grid[i].append(complete_grid[i][j].text)
+            if self.caller.check_winner([move[0],move[1]], text_grid, player, False):
+                print("someone won")
+                if player == "O":
+                    result = 1
+                    print("Somewhere is a one")
+                else:
+                    result = -1
+                    print("Somewhere is a minus one")
+            else:
+                result = 0
+            for possibility in empty_tiles:
+                new_grid.remove(possibility)
+                possibilities.append({'player': next_player, 'result': result, 'tile_coord': [possibility], 'children': [], 'grid': new_grid})
+            new_grid = empty_tiles.copy()
+            for possibility in possibilities:
+                #print(possibility)
+                new_grid.remove(possibility["tile_coord"][0])
+                complete_grid_copy = complete_grid.copy()
+                complete_grid_copy[possibility["tile_coord"][0][0]][possibility["tile_coord"][0][1]].text = player
+                #print(complete_grid_copy)
+                #print(possibility["tile_coord"])
+                child = self.recursion(new_grid, next_player, complete_grid_copy)
+                possibilities[possibilities.index(possibility)]["children"].append(child)
+            return possibilities
         else:
-            pass
-            #print("recursion end")
-
+            return {'player': player, 'result': 0, 'tile_coord': empty_tiles, 'children': []}
 
 # this is the main grid class of the app
 class MainGrid(GridLayout):
