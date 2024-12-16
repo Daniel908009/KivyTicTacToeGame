@@ -5,23 +5,19 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 import random
 
-# function to get the depth of a list
-def depth(l):
-    if type(l) == list:
-        return 1 + max(depth(item) for item in l)
-    else:
-        return 0
-
-#test_object = {'results': [], 'coords': []}
+# this array will be used to store the results of the recursive algorithm, it is a global variable, because passing it between the functions would make it more complicated
+ai_results = []
 
 # this is the popup class for settings
 class SettingsPopup(Popup):
+    # method for sending the info to the popup
     def send_info(self, caller):
         self.caller = caller
         self.ids.gridSize.text = str(caller.grid_size)
         self.ids.winCount.text = str(caller.win_count)
         self.ids.aiPlayer.text = caller.ai_player
         self.ids.aiDifficulty.text = caller.ai_difficulty
+    # method for applying the settings
     def apply_settings(self):
         if self.ids.gridSize.text != '' and int(self.ids.gridSize.text) > 0 and self.ids.winCount.text != '' and int(self.ids.winCount.text) > 0 and int(self.ids.winCount.text) <= int(self.ids.gridSize.text):
             self.caller.grid_size = int(self.ids.gridSize.text)
@@ -33,10 +29,12 @@ class SettingsPopup(Popup):
 
 # this is the grid button class used in the main grid
 class GridButton(Button):
+    # method for sending the info to the button, maybe could be done differently, however this is simple and it works
     def send_info(self, caller, row, col):
         self.caller = caller
         self.row = row
         self.col = col
+    # method for clicking the button, is called by both the player and the ai
     def click(self):
         if self.text == '':
             self.text = self.caller.current_player
@@ -45,6 +43,7 @@ class GridButton(Button):
             #print(self.caller.ai_player)
             if self.caller.ai_player == 'AI' and self.text == 'X' and not self.caller.game_over:
                 self.ai_move()
+    # method for the ai to make a move
     def ai_move(self):
         # getting the best move
         best_move = self.ai_choice()
@@ -88,86 +87,120 @@ class GridButton(Button):
                 grid_copy[move[0]][move[1]] = ''
 
         # calling the algorithm to choose the best move, this will take like a thousand years to finish
-        #if chosen[1] == 0:
-        #    chosen[0] = self.algorithm(grid_copy)
-        #    print('chosen move at ' + str(chosen))
-        copy = self.caller.grid.copy()
-        copy[0][0].text = 'O'
+        if chosen[1] == 0 and self.caller.ai_difficulty == 'Hard':
+            chosen[0] = self.algorithm(grid_copy)
         
         return chosen[0]
-    
+    # the algorithm to choose the best ai move
     def algorithm(self, grid):
+        global ai_results
         move = [0,0]
         base_empty_tiles = []
         # getting all the empty tiles
         for i in range(self.caller.grid_size):
+            ai_results.append([])
             for j in range(self.caller.grid_size):
+                ai_results[i].append(0)
                 if grid[i][j] == '':
-                    base_empty_tiles.append((i,j))
+                    base_empty_tiles.append([i,j])
+                
+        # original texts of the grid
+        original_texts = []
+        for i in range(self.caller.grid_size):
+            original_texts.append([])
+            for j in range(self.caller.grid_size):
+                original_texts[i].append(self.caller.grid[i][j].text)
+        #print(original_texts)
+        # doing recursive algorithm things
         all_possibilities = []
+        #print('base empty tiles: ' + str(base_empty_tiles))
         for possibility in base_empty_tiles:
-            all_possibilities.append({'player': "O", 'result': 0, 'tile_coord': [possibility], 'children': [], 'grid': base_empty_tiles})
-        for possibility in all_possibilities:
-            child = self.recursion(base_empty_tiles, "O", self.caller.grid.copy())
-            all_possibilities[all_possibilities.index(possibility)]["children"].append(child)
-        #print(str(all_possibilities[0]) + ' is the first possibility')
-        return move
-
-    def recursion(self,grid, player, complete_grid):
-        empty_tiles = grid
-        #print(len(empty_tiles))
-        #print(empty_tiles)
-        if len(empty_tiles) > 1:
-            next_player = "X" if player == "O" else "O"
-            possibilities = []
-            new_grid = empty_tiles.copy()
-            move = empty_tiles[0]
-            #print(move)
-            #print(player)
-            #print(self.caller.check_winner([move[0],move[1]], complete_grid, player, False))
-            text_grid = []
+            all_possibilities.append(possibility)
+            #print('possibility jfkalsdfjklas;dfjaskldfjl;asdjfklasjfdlk;: ' + str(possibility))
+            #print(ai_results[possibility[0]][possibility[1]])
+            #self.recursion('O',grid, possibility)         #############################################important
+            #print('ai results: ' + str(ai_results))
+            #print('recursion started')
+            # resetting the grid texts, because the recursion changes them since there is no way to make a copy of the buttons grid, so the function work with the original
             for i in range(self.caller.grid_size):
-                text_grid.append([])
                 for j in range(self.caller.grid_size):
-                    text_grid[i].append(complete_grid[i][j].text)
-            if self.caller.check_winner([move[0],move[1]], text_grid, player, False):
-                print("someone won")
-                if player == "O":
-                    result = 1
-                    print("Somewhere is a one")
+                    self.caller.grid[i][j].text = original_texts[i][j]
+            #print('resetting')
+        #print('all possibilities: ' + str(all_possibilities))
+        self.recursion('O',grid, all_possibilities[0])
+        print('ai results: ' + str(ai_results))
+        # calling a function to get the best move based on the result values inside the all_possibilities list
+        #move = self.get_best_move_from_possibilities()
+        return move
+    # recursive method to get all the possibilities of how the game can end, it is so complicated that I have no clue if there is something not neccessary in it and its so complicated, that I have a paper with a lot of drawings and notes about it
+    def recursion(self,player,text_grid,answer_pos):
+        global ai_results
+        empty_tiles = []
+        print("/////////////////////////////////////////////////////////////////////")
+        for i in range(self.caller.grid_size):
+            print(text_grid[i])
+        for i in range(self.caller.grid_size):
+            for j in range(self.caller.grid_size):
+                if text_grid[i][j] == '':
+                    empty_tiles.append((i,j))
+        #print('empty tiles: ' + str(len(empty_tiles)))
+        if len(empty_tiles) > 0:
+            for place in empty_tiles:
+                copy_text_grid = []
+                for i in range(self.caller.grid_size):
+                    copy_text_grid.append([])
+                    for j in range(self.caller.grid_size):
+                        copy_text_grid[i].append(text_grid[i][j])
+                copy_text_grid[place[0]][place[1]] = player
+                if self.caller.check_winner([place[0],place[1]], copy_text_grid, player, False):
+                    #print(answer_pos)
+                    if player == 'O':
+                        ai_results[answer_pos[0]][answer_pos[1]] += 1
+                        print(str(copy_text_grid) + 'added 1 to ' + str(answer_pos))
+                        #print('added 1 to ' + str(answer_pos))
+                        #print(ai_results)
+                    elif player == 'X':
+                        ai_results[answer_pos[0]][answer_pos[1]] -= 1
+                        print(str(copy_text_grid) + 'subtracted 1 from ' + str(answer_pos))
+                        #print('addedfromX 1 from ' + str(answer_pos))
+                        #print(ai_results)
+                    else:
+                        print("something terrible happened")
                 else:
-                    result = -1
-                    print("Somewhere is a minus one")
-            else:
-                result = 0
-            for possibility in empty_tiles:
-                new_grid.remove(possibility)
-                possibilities.append({'player': next_player, 'result': result, 'tile_coord': [possibility], 'children': [], 'grid': new_grid})
-            new_grid = empty_tiles.copy()
-            for possibility in possibilities:
-                #print(possibility)
-                new_grid.remove(possibility["tile_coord"][0])
-                complete_grid_copy = complete_grid.copy()
-                complete_grid_copy[possibility["tile_coord"][0][0]][possibility["tile_coord"][0][1]].text = player
-                #print(complete_grid_copy)
-                #print(possibility["tile_coord"])
-                child = self.recursion(new_grid, next_player, complete_grid_copy)
-                possibilities[possibilities.index(possibility)]["children"].append(child)
-            return possibilities
+                    if player == 'O':
+                        self.recursion('X',copy_text_grid,answer_pos)
+                    elif player == 'X':
+                        self.recursion('O',copy_text_grid,answer_pos)
+                    else:
+                        print("all hope is lost")
         else:
-            return {'player': player, 'result': 0, 'tile_coord': empty_tiles, 'children': []}
+            print("this should be printed when the recursion ends, grid = " + str(text_grid))
+
+    # method to get the best move from the possibilities list, will need a lot of work
+    def get_best_move_from_possibilities(self):
+        global ai_results
+        highest = 0
+        for i in ai_results:
+            if i > highest:
+                highest = i
+        best_move = self.caller.grid[ai_results.index(highest)]
+        print('best move is ' + str(best_move))
+        return best_move
 
 # this is the main grid class of the app
 class MainGrid(GridLayout):
+    # method for opening the settings popup
     def settings(self):
         popup = SettingsPopup()
-        popup.send_info(self)
+        popup.send_info(self) # maybe can be done differently, however this works and its simple
         popup.open()
+    # method for resetting the game
     def reset(self):
         self.current_player = 'X'
         self.ids.currentPlayer.text = 'Current player: ' + self.current_player
         self.game_over = False
         self.fill_grid()
+    # method for filling up the grid with the grid buttons
     def fill_grid(self):
         self.current_player = 'X'
         game_grid = self.ids.gameGrid
@@ -183,6 +216,7 @@ class MainGrid(GridLayout):
         # its a bit weird to set the cols, and then return it as well, but it is necessary and it works
         game_grid.cols = self.grid_size
         return self.grid_size
+    # method for checking if someone won the game in the inputted grid, its really big and maybe could be better, however it works
     def check_winner(self, button_clicked, grid, text_of_clicked, is_real):
         buttons_of_player = 0
         winner_buttons = []
@@ -221,7 +255,6 @@ class MainGrid(GridLayout):
         if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real: # the plus one is there because the button that was clicked last is counted twice
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
-            print("horizontal")
             return True
         # checking both vertical options
         buttons_of_player = 0
@@ -257,7 +290,6 @@ class MainGrid(GridLayout):
         if buttons_of_player >= self.win_count + 1 and self.current_player != text_of_clicked and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
-            print("vertical")
             return True
         # checking the first pair of diagonal options
         buttons_of_player = 0
@@ -293,7 +325,6 @@ class MainGrid(GridLayout):
         if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
-            print("first diagonal")
             return True
         # checking the second pair of diagonal options
         buttons_of_player = 0
@@ -328,22 +359,24 @@ class MainGrid(GridLayout):
         if buttons_of_player >= self.win_count + 1 and self.current_player != 'O' and is_real:
             self.winner(button_clicked.text, winner_buttons)
         elif buttons_of_player >= self.win_count + 1:
-            print("second diagonal")
             return True
-        elif self.no_empty_tiles():
+        elif self.no_empty_tiles() and is_real:
+            #print("everything is either broken or full")
+            #print("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////")
             self.ids.currentPlayer.text = 'No winner'
             self.game_over = True
             for button in self.ids.gameGrid.children:
                 button.disabled = True
-                
+    # method to show the winner of the game         
     def winner(self, winner, winner_buttons): 
+        #print("How did we get here?")
         self.ids.currentPlayer.text = 'Winner is: ' + winner
         self.game_over = True
         for button in self.ids.gameGrid.children:
             button.disabled = True
         for button in winner_buttons:
             button.background_color = (0, 1, 0, 1)
-
+    # method to check if there are any empty tiles left
     def no_empty_tiles(self):
         for button in self.ids.gameGrid.children:
             if button.text == '':
