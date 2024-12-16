@@ -16,11 +16,13 @@
 [X] Layout of the app<br>
 [X] Clickable button grid<br>
 [X] Winner conditions checking<br>
-[] AI opponent(Halfway done)<br>
+[] AI opponent(Something of a prototype done)<br>
 
 ## AI explanation
 <p>Currently the AI recognizes if player can win and blocks him, and it recognizes if it can win in one move. However it cant think more than one move ahead.</p>
 <p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet, since this is the first time I am doing recursive functions.</p>
+<p>Update: I had to rework the entire enemy control twice now, however this version seems very close to working. There is something wrong with the final results that it gives though. For some reason they are all same, possible reasons include wrong switching of players or badly done priorities.</p>
+<p>Will have to look into it.</p>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
