@@ -118,7 +118,7 @@ class GridButton(Button):
             all_possibilities.append(possibility)
             #print('possibility jfkalsdfjklas;dfjaskldfjl;asdjfklasjfdlk;: ' + str(possibility))
             #print(ai_results[possibility[0]][possibility[1]])
-            #self.recursion('O',grid, possibility)         #############################################important
+            self.recursion('O',grid, possibility, 0)         #############################################important
             #print('ai results: ' + str(ai_results))
             #print('recursion started')
             # resetting the grid texts, because the recursion changes them since there is no way to make a copy of the buttons grid, so the function work with the original
@@ -127,18 +127,19 @@ class GridButton(Button):
                     self.caller.grid[i][j].text = original_texts[i][j]
             #print('resetting')
         #print('all possibilities: ' + str(all_possibilities))
-        self.recursion('O',grid, all_possibilities[0])
+        #self.recursion('O',grid, all_possibilities[0], 0)
         print('ai results: ' + str(ai_results))
         # calling a function to get the best move based on the result values inside the all_possibilities list
         #move = self.get_best_move_from_possibilities()
         return move
     # recursive method to get all the possibilities of how the game can end, it is so complicated that I have no clue if there is something not neccessary in it and its so complicated, that I have a paper with a lot of drawings and notes about it
-    def recursion(self,player,text_grid,answer_pos):
+    def recursion(self,player,text_grid,answer_pos, depth):
+        #print(depth)
         global ai_results
         empty_tiles = []
-        print("/////////////////////////////////////////////////////////////////////")
-        for i in range(self.caller.grid_size):
-            print(text_grid[i])
+        #print("/////////////////////////////////////////////////////////////////////")
+        #for i in range(self.caller.grid_size):
+            #print(text_grid[i])
         for i in range(self.caller.grid_size):
             for j in range(self.caller.grid_size):
                 if text_grid[i][j] == '':
@@ -155,26 +156,27 @@ class GridButton(Button):
                 if self.caller.check_winner([place[0],place[1]], copy_text_grid, player, False):
                     #print(answer_pos)
                     if player == 'O':
-                        ai_results[answer_pos[0]][answer_pos[1]] += 1
-                        print(str(copy_text_grid) + 'added 1 to ' + str(answer_pos))
+                        ai_results[answer_pos[0]][answer_pos[1]] += (10 - depth)
+                        #print(str(copy_text_grid) + 'added 1 to ' + str(answer_pos))
                         #print('added 1 to ' + str(answer_pos))
                         #print(ai_results)
                     elif player == 'X':
-                        ai_results[answer_pos[0]][answer_pos[1]] -= 1
-                        print(str(copy_text_grid) + 'subtracted 1 from ' + str(answer_pos))
+                        ai_results[answer_pos[0]][answer_pos[1]] -= (depth - 10)
+                        #print(str(copy_text_grid) + 'subtracted 1 from ' + str(answer_pos))
                         #print('addedfromX 1 from ' + str(answer_pos))
                         #print(ai_results)
                     else:
                         print("something terrible happened")
                 else:
                     if player == 'O':
-                        self.recursion('X',copy_text_grid,answer_pos)
+                        self.recursion('X',copy_text_grid,answer_pos, depth+1)
                     elif player == 'X':
-                        self.recursion('O',copy_text_grid,answer_pos)
+                        self.recursion('O',copy_text_grid,answer_pos, depth+1)
                     else:
                         print("all hope is lost")
         else:
-            print("this should be printed when the recursion ends, grid = " + str(text_grid))
+            pass
+            #print("this should be printed when the recursion ends, grid = " + str(text_grid))
 
     # method to get the best move from the possibilities list, will need a lot of work
     def get_best_move_from_possibilities(self):
