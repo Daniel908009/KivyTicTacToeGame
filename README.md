@@ -23,6 +23,7 @@
 <p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet, since this is the first time I am doing recursive functions.</p>
 <p>Update: I had to rework the entire enemy control twice now, however this version seems very close to working. But there is something wrong with the final results that it gives. For some reason all buttons have the same priority rating no matter what, for example they all have priority of 80000 or 20000 or something like 5000, possible reasons include wrong switching of players or badly done priority rating based on depth.</p>
 <p>Will have to look into it, but one thing is certain. I do not like recursive functions.</p>
+<p>*Note I would not recommend to play the game in its current state. However I you still want to play it, you will need to change to player VS player in the settings popup inside the app (you can see the opening button in the images)</p>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
