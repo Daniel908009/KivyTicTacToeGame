@@ -21,8 +21,8 @@
 ## AI explanation
 <p>Currently the AI recognizes if player can win and blocks him, and it recognizes if it can win in one move. However it cant think more than one move ahead.</p>
 <p>A part of the algorithm for thinking ahead is in the code, however it isnt completed yet, since this is the first time I am doing recursive functions.</p>
-<p>Update: I had to rework the entire enemy control twice now, however this version seems very close to working. There is something wrong with the final results that it gives though. For some reason they are all same, possible reasons include wrong switching of players or badly done priorities.</p>
-<p>Will have to look into it.</p>
+<p>Update: I had to rework the entire enemy control twice now, however this version seems very close to working. But there is something wrong with the final results that it gives. For some reason all buttons have the same priority rating no matter what, for example the all have priority of 80000 or 20000, possible reasons include wrong switching of players or badly done priorities.</p>
+<p>Will have to look into it, but one thing is certain. I do not like recursive functions.</p>
 
 <h1>Download instructions</h1>
 *Note the links are instructional images <br>
